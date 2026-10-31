@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Obfuscation Lab</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--panel2:#f1f3f9;--line:#e3e6ef;--text:#0f172a;--muted:#64748b;--accent:#1e3a6e;--accent2:#e8edf6;--good:#2f7d5b;--goodbg:#e7f1ec;--bad:#a63d3d;--badbg:#f5e8e8;--warn:#93650f;--warnbg:#f5efe1;--na:#94a3b8;--nabg:#f1f5f9;--code:#0b1020;--codetext:#d7deea;--shadow:0 1px 2px rgba(15,23,42,.06),0 4px 16px rgba(15,23,42,.05);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0f19;--panel:#121826;--panel2:#18203a;--line:#232c42;--text:#e6e9f2;--muted:#8a95ad;--accent:#7d9bd1;--accent2:#17233c;--good:#62b08b;--goodbg:#12241c;--bad:#d77f7f;--badbg:#2a181a;--warn:#d1a54d;--warnbg:#292114;--na:#64748b;--nabg:#1a2133;--code:#070a12;--shadow:none;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif}
+code,pre,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .in{max-width:1440px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:16px}
+.logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:grid;place-items:center;color:#fff;font-weight:800}
+.brand b{display:block;font-size:15px}.brand small{color:var(--muted);font-size:12px}
+.flow{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.flow span{padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}.flow i{font-style:normal;opacity:.5}
+.wrap{max-width:1440px;margin:auto;padding:24px;display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:16px}.flow{display:none}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.card>header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.card>header h2{margin:0;font-size:14px;font-weight:650}.card .body{padding:16px 18px}
+.side{position:sticky;top:76px;max-height:calc(100vh - 96px);overflow:auto}
+@media (max-width:1000px){.side{position:static;max-height:none}}
+.step{width:20px;height:20px;border-radius:6px;background:var(--accent2);color:var(--accent);font-size:11px;font-weight:700;display:grid;place-items:center}
+.field{margin:0 0 14px}.field>label,.lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+input[type=text],input[type=number],input:not([type]),select{width:100%;font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent2)}
+.hint{color:var(--muted);font-size:12px;margin-top:6px}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--panel2);text-decoration:none}.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;width:100%;justify-content:center;padding:11px}.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.examples{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ex{border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;background:var(--panel);text-align:left;font:inherit;color:inherit}
+.ex:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.ex.on{border-color:var(--accent);background:var(--accent2)}
+.ex b{display:block;font-size:13px}.ex small{color:var(--muted);font-size:11px}
+.ex.wide{grid-column:span 2;display:flex;justify-content:space-between;align-items:center}
+.truth{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--panel2);font-size:12px;color:var(--muted)}
+.truth code{color:var(--text);font-weight:600}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--muted);font-size:13px}
+.drop.drag{border-color:var(--accent);background:var(--accent2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:12px;user-select:none;background:var(--panel)}
+.chip input{display:none}.chip.on{border-color:var(--accent);background:var(--accent2);color:var(--accent);font-weight:600}
+.chip.locked{opacity:.75;cursor:default}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toggle{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.toggle.on{border-color:var(--accent);background:var(--accent2)}.toggle input{margin-top:3px;accent-color:var(--accent)}
+.toggle b{font-size:13px}.toggle small{display:block;color:var(--muted);font-size:12px}
+.estimate{font-size:12px;color:var(--muted);background:var(--panel2);border-radius:8px;padding:8px 10px;margin:12px 0}
+.error{color:var(--bad);font-size:13px;white-space:pre-wrap;margin:8px 0 0}
+.mainhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.mainhead h1{margin:0;font-size:20px}.mainhead select{width:auto;min-width:280px;max-width:100%;margin-left:auto}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--nabg);color:var(--muted)}
+.status.running,.status.pending{background:var(--accent2);color:var(--accent)}.status.done{background:var(--goodbg);color:var(--good)}
+.status.error,.status.interrupted,.status.done_with_errors{background:var(--warnbg);color:var(--warn)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}.running .dot{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.progress{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:4px 0 16px}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--accent),#06b6d4);transition:width .4s}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:700px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{padding:14px 16px}.kpi .v{font-size:24px;font-weight:700;letter-spacing:-.02em}.kpi .k{font-size:12px;color:var(--muted)}
+.kpi .s{font-size:11px;color:var(--muted);margin-top:2px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 12px;overflow-x:auto}
+.tab{font:inherit;font-weight:600;font-size:13px;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px 10px;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--text);border-bottom-color:var(--accent)}
+.pane{padding:18px}
+.callout{border-left:3px solid var(--accent);background:var(--panel2);padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.callout.good{border-color:var(--good)}.callout.warn{border-color:var(--warn)}.callout p{margin:4px 0 0;color:var(--muted)}
+.matrix{border-collapse:separate;border-spacing:6px;margin:-6px}
+.matrix th{font-size:11px;font-weight:600;color:var(--muted);text-align:center;padding:2px 4px;white-space:nowrap}
+.matrix th.p{text-align:left;color:var(--text);font-size:12px}
+.cell{border-radius:8px;padding:8px 8px;text-align:center;cursor:pointer;min-width:84px;border:1px solid transparent}
+.cell:hover{border-color:var(--accent)}
+.cell .m{display:flex;justify-content:space-between;gap:8px;font-size:11px;line-height:1.7}
+.cell .m span:first-child{opacity:.7}.cell .m b{font-variant-numeric:tabular-nums}
+.c-good{background:var(--goodbg);color:var(--good)}.c-bad{background:var(--badbg);color:var(--bad)}.c-mid{background:var(--warnbg);color:var(--warn)}.c-na{background:var(--nabg);color:var(--na)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:14px 0 20px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tr:hover td{background:var(--panel2)}
+.scroll{overflow:auto}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.b-good{background:var(--goodbg);color:var(--good)}.b-bad{background:var(--badbg);color:var(--bad)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-na{background:var(--nabg);color:var(--na)}
+.foot{font-size:12px;color:var(--muted);margin-top:14px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.figs{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px}
+@media (max-width:700px){.figs{grid-template-columns:1fr}}
+.fig{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.fig figcaption{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px;font-weight:600}
+.fig figcaption span{color:var(--muted);font-weight:500}
+.fig img{display:block;width:100%;background:#fff;cursor:zoom-in}
+.figs .empty{grid-column:1/-1}
+pre.code{background:var(--code);color:var(--codetext);border-radius:10px;padding:14px;margin:0;font-size:12px;line-height:1.6;overflow:auto;max-height:420px;white-space:pre}
+.panes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:1200px){.panes{grid-template-columns:1fr}}
+.panes h3{margin:0 0 4px;font-size:13px}.panes small{display:block;color:var(--muted);font-size:11px;margin-bottom:8px}
+.diff .add{color:#4ade80}.diff .del{color:#f87171}.diff .hdr{color:#8b8cf8}
+details.more{margin-top:14px}details.more summary{cursor:pointer;font-weight:600;font-size:13px;padding:6px 0}
+.log{background:var(--code);color:#9fe6b8;border-radius:10px;padding:14px;font-size:12px;max-height:520px;overflow:auto;white-space:pre-wrap;margin:0}
+.empty{text-align:center;padding:56px 24px;color:var(--muted)}.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.trial{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.trial .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.trial .a{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-all}
+/* ---------- theme: navy, restrained ---------- */
+.card{border-radius:8px}.btn{border-radius:6px}.ex{border-radius:6px}.chip{border-radius:4px}.status,.badge{border-radius:4px}
+input[type=text],input[type=number],input:not([type]),select{border-radius:6px}
+.logo{background:var(--accent);border-radius:6px;font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.02em}
+.live{width:8px;height:8px;border-radius:50%;background:var(--na);padding:0!important;border:0!important}
+.live.on{background:var(--good);animation:blink 1.2s infinite}
+#liveText{border:0!important;background:none!important;font-weight:600}
+.hero{background:#0f1e3a;border-bottom:1px solid #1d3157;color:#e4eaf4}
+.hero .in{max-width:1440px;margin:auto;padding:26px 24px;display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center}
+@media (max-width:1100px){.hero .in{grid-template-columns:1fr}}
+.eyebrow{font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#8aa0c6}
+.hero h1{margin:6px 0 8px;font-size:21px;font-weight:650;line-height:1.3;letter-spacing:-.01em;color:#fff}
+.hero p{margin:0;color:#a9b7cf;font-size:13px;max-width:560px}
+.pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;counter-reset:s}
+@media (max-width:700px){.pipe{grid-template-columns:repeat(3,1fr)}}
+.node{position:relative;background:#132748;border:1px solid #22385f;border-radius:6px;padding:10px;transition:border-color .2s,background .2s}
+.node:not(:last-child)::after{content:"";position:absolute;right:-11px;top:50%;width:10px;height:1px;background:#33507f}
+.node i{counter-increment:s;font-style:normal;font:600 10px ui-monospace,Menlo,monospace;color:#7f96bf}
+.node i::before{content:counter(s,decimal-leading-zero)}
+.node b{display:block;font-size:12.5px;margin-top:4px;color:#fff}.node small{display:block;font-size:10.5px;color:#8aa0c6}
+.node.on{background:#17305a;border-color:#6f8fc9;box-shadow:inset 0 2px 0 #6f8fc9}.node.on i{color:#b9c9e6}
+.step{background:var(--accent);color:#fff;border-radius:4px}
+.ex{display:flex;gap:10px;align-items:center}
+.ex .ic{flex:none;width:36px;height:30px;border-radius:4px;display:grid;place-items:center;font:600 10px ui-monospace,Menlo,monospace;background:var(--panel2);color:var(--accent);border:1px solid var(--line)}
+.ex.on{border-color:var(--accent);background:var(--accent2);box-shadow:none}.ex.on .ic{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ex.wide{display:flex;justify-content:flex-start}
+.chip .sw{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.chip.on{border-color:var(--accent);background:var(--accent2);color:var(--text);font-weight:600}
+.techlegend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px;width:100%}
+.techlegend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:5px}
+.btn.primary{background:var(--accent);border-color:var(--accent);box-shadow:none}
+.kpi{display:flex;gap:14px;align-items:center;border-left:3px solid var(--c,var(--accent))}
+.kpi .k{text-transform:uppercase;letter-spacing:.05em;font-size:11px;font-weight:600}
+.kpi .v{font-variant-numeric:tabular-nums;font-weight:650}
+.ring{flex:none;width:42px;height:42px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--panel2) 0);display:grid;place-items:center}
+.ring::after{content:"";width:32px;height:32px;border-radius:50%;background:var(--panel)}
+.tabs{padding:0 12px;gap:2px}
+.tab{border-radius:0;padding:12px}.tab:hover{color:var(--text)}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.cell{border-radius:4px;min-width:96px;padding:8px 10px}
+.cell .big{font-size:16px;font-weight:650;font-variant-numeric:tabular-nums;margin-bottom:2px}
+.matrix th .sw{display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--c);margin-right:5px}
+.progress{height:4px}.progress>div{background:var(--accent)}
+.callout{border-radius:4px}
+</style></head><body>
+
+<div class="top"><div class="in">
+  <div class="logo">OL</div>
+  <div class="brand" style="margin-right:auto"><b>Obfuscation Lab</b><small>Information Security</small></div>
+  <div class="flow"><span class="live" id="liveDot"></span><span id="liveText">Idle</span></div>
+</div></div>
+
+<div class="hero"><div class="in">
+  <div class="hero-text">
+    <div class="eyebrow">Research dashboard</div>
+    <h1>Can an LLM recover secrets from <span>obfuscated</span> binaries?</h1>
+    <p>Each program hides a secret. We transform it with Tigress, compile it, decompile it with Ghidra and ask the model to recover the secret, then measure what every technique costs and protects.</p>
+  </div>
+  <div class="pipe" id="pipe">
+    <div class="node" data-stage="source"><i></i><b>Source</b><small>C program + secret</small></div>
+    <div class="node" data-stage="tigress"><i></i><b>Tigress</b><small>obfuscation</small></div>
+    <div class="node" data-stage="build"><i></i><b>clang</b><small>compile · verify</small></div>
+    <div class="node" data-stage="ghidra"><i></i><b>Ghidra</b><small>decompilation</small></div>
+    <div class="node" data-stage="llm"><i></i><b>LLM</b><small>secret recovery</small></div>
+    <div class="node" data-stage="score"><i></i><b>Evaluation</b><small>score · cost</small></div>
+  </div>
+</div></div>
+
+<div class="wrap">
+<aside class="side card">
+  <header><span class="step">1</span><h2>Target program</h2></header>
+  <div class="body">
+    <div id="examples" class="examples"></div>
+    <div id="builtinInfo" class="truth">
+      <div id="description"></div>
+      <div style="margin-top:6px">Evaluator ground truth: <code id="ground"></code> <a id="source" target="_blank" style="float:right">View source ↗</a></div>
+      <div style="margin-top:4px;font-size:11px">Never supplied to the LLM as an answer.</div>
+    </div>
+    <div id="custom" hidden style="margin-top:12px">
+      <div id="dropzone" class="drop">Drop a <code>.c</code> or <code>.zip</code> here, or <label style="color:var(--accent);cursor:pointer;font-weight:600">browse<input id="upload" type="file" accept=".c,.zip" hidden></label>
+        <div id="uploadStatus" style="margin-top:6px;font-weight:600;color:var(--text)"></div></div>
+      <div class="field" style="margin-top:12px"><label>Secret-checking function</label><input id="function" placeholder="check_password"></div>
+      <div class="row2">
+        <div class="field"><label>Ground truth</label><input id="secret" autocomplete="off"></div>
+        <div class="field"><label>Success output</label><input id="expected" value="SUCCESS"></div>
+      </div>
+      <div class="hint">One main C translation unit plus local headers. Custom uploads report process wall time only.</div>
+    </div>
+  </div>
+
+  <header style="border-top:1px solid var(--line)"><span class="step">2</span><h2>Obfuscation techniques</h2>
+    <span style="margin-left:auto;display:flex;gap:4px"><button class="btn sm" data-pick="all">All</button><button class="btn sm" data-pick="none">Reset</button></span></header>
+  <div class="body">
+    <div id="techniques" class="chips"></div>
+    <div class="hint">Baseline is always included. Every variant is checked with the correct input, mutations, boundary cases and deterministic negative inputs.</div>
+  </div>
+
+  <header style="border-top:1px solid var(--line)"><span class="step">3</span><h2>Attack protocol</h2></header>
+  <div class="body">
+    <div class="row2">
+      <div class="field"><label>Tigress seeds</label><input id="seeds" value="11"><div class="hint">Comma-separated, 1–5 distinct.</div></div>
+      <div class="field"><label>Repetitions</label><input id="runs" type="number" min="1" max="10" value="1"><div class="hint">Per build and mode, T = 0.</div></div>
+    </div>
+    <span class="lbl">LLM input</span>
+    <label class="toggle on"><input class="mode" type="checkbox" value="pseudoc" checked><span><b>Pseudo-C</b><small>Ghidra + LLM pipeline</small></span></label>
+    <label class="toggle"><input class="mode" type="checkbox" value="assisted"><span><b>Assisted</b><small>Pseudo-C + disassembly + .rodata bytes</small></span></label>
+    <div id="estimate" class="estimate"></div>
+    <button id="start" class="btn primary">Run experiment</button>
+    <p id="error" class="error"></p>
+  </div>
+</aside>
+
+<main>
+  <div class="mainhead">
+    <h1>Results</h1><span id="statusBadge" class="status"><span class="dot"></span><span id="statusText">No experiment selected</span></span>
+    <select id="history"><option value="">Saved experiments…</option></select>
+    <button class="btn sm" id="refresh" title="Refresh history">Refresh</button>
+  </div>
+  <div class="progress"><div id="bar" style="width:0"></div></div>
+  <div id="current" class="hint" style="margin:-10px 0 14px"></div>
+
+  <div class="kpis">
+    <div class="card kpi"><div><div class="k">Builds verified</div><div class="v" id="kVerified">—</div><div class="s" id="kVerifiedS"></div></div></div>
+    <div class="card kpi"><div><div class="k">Decompiled by Ghidra</div><div class="v" id="kDecomp">—</div><div class="s" id="kDecompS"></div></div></div>
+    <div class="card kpi"><div><div class="k">LLM trials evaluated</div><div class="v" id="kTrials">—</div><div class="s" id="kTrialsS"></div></div></div>
+    <div class="card kpi" id="kRateCard" style="--c:#9aa5b8;--p:0"><div class="ring"></div><div><div class="k">Recovered after obfuscation</div><div class="v" id="kRate">—</div><div class="s" id="kRateS"></div></div></div>
+  </div>
+
+  <div class="card">
+    <nav class="tabs">
+      <button class="tab on" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="measure">Measurements</button>
+      <button class="tab" data-tab="figures">Figures</button>
+      <button class="tab" data-tab="trials">Trials</button>
+      <button class="tab" data-tab="compare">Code comparison</button>
+      <button class="tab" data-tab="log">Log</button>
+    </nav>
+
+    <section class="pane" data-pane="overview">
+      <div id="emptyState" class="empty"><b>No results yet</b>Choose a target and techniques on the left and run an experiment, or open a saved one above.</div>
+      <div id="overview" hidden>
+        <div id="completion" class="callout"></div>
+        <span class="lbl">Secret recovery matrix</span>
+        <div class="scroll"><table class="matrix" id="matrix"></table></div>
+        <div class="legend"><span><i style="background:var(--good)"></i>Not recovered</span><span><i style="background:var(--warn)"></i>Partly recovered</span><span><i style="background:var(--bad)"></i>Recovered in every trial</span><span><i style="background:var(--na)"></i>Not evaluated</span><span>PC = pseudo-C · AS = assisted · click a cell to compare code</span></div>
+        <span class="lbl">Interpretation</span>
+        <div class="scroll"><table class="tbl"><thead><tr><th>Program / technique</th><th>LLM input</th><th>Recovered</th><th>What it means</th></tr></thead><tbody id="plainRows"></tbody></table></div>
+        <div class="actions" id="exports" hidden>
+          <a class="btn sm" id="csv" download>Export CSV</a><a class="btn sm" id="report" target="_blank">Report ↗</a><button class="btn sm" data-goto="figures">View figures</button>
+        </div>
+        <p id="savedSettings" class="foot"></p>
+      </div>
+    </section>
+
+    <section class="pane" data-pane="measure" hidden>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Program / technique</th><th>Mode</th><th>Verified</th><th>Recovered</th><th>95% CI*</th><th>Unexecuted / format</th><th>Ghidra flags</th><th>strings</th><th>Size Δ</th><th>Checker ×</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="foot">*Descriptive Wilson interval. Trials may be correlated; this interval does not guarantee generalization. No detected warnings does not guarantee complete pseudo-C. Checker timing excludes process startup and I/O; median of 7 rounds with 100,000 mixed-input calls.</p>
+    </section>
+
+    <section class="pane" data-pane="figures" hidden>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <p class="hint" style="margin:0">Figures are generated locally from the saved summary (matplotlib); no LLM requests are made. Error bars are descriptive Wilson 95% intervals; amber bars mark builds with Ghidra warnings.</p>
+        <button class="btn sm" id="plots" style="margin-left:auto;flex:none">Regenerate</button>
+      </div>
+      <div id="figures" class="figs"><div class="empty"><b>No figures yet</b>Open an experiment with results to generate its figures.</div></div>
+    </section>
+
+    <section class="pane" data-pane="trials" hidden><div id="individual"></div></section>
+
+    <section class="pane" data-pane="compare" hidden>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <select id="comparisonSelect"></select><button id="compareButton" class="btn">Compare</button>
+      </div>
+      <p class="hint" style="margin-top:0">Comparing against the decompiled baseline helps distinguish obfuscation effects from changes caused by compilation and decompilation.</p>
+      <p id="comparisonError" class="error"></p>
+      <div id="comparisonSummary" class="callout" hidden></div>
+      <div id="codePanes" class="panes"></div>
+      <details class="more"><summary>Line-by-line changes: Ghidra baseline → Ghidra variant</summary><pre id="codeDiff" class="code diff"></pre></details>
+      <details class="more"><summary>Transformed C after Tigress, before compilation</summary><pre id="tigressCode" class="code"></pre></details>
+      <div id="comparisonNotes" class="foot"></div>
+    </section>
+
+    <section class="pane" data-pane="log" hidden><pre id="logs" class="log">No log yet.</pre></section>
+  </div>
+</main>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);let examples=[],selected='p1_password',jobId=null,uploadId=null,pollGeneration=0,lastComparisonJob=null;
+const escapeHTML=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(url,options){const r=await fetch(url,options);const d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);return d;}
+const fmt=(x,d=1)=>x==null?'N/A':Number(x).toFixed(d);
+const pct=x=>x==null?'—':Math.round(x*100)+'%';
+const sum=(rows,k)=>rows.reduce((a,r)=>a+(r[k]||0),0);
+
+// ---------- configuration ----------
+function selectedPrograms(){return selected==='all'?examples.map(e=>e.id):selected==='custom'?[]:[selected];}
+function parameters(){return {programs:selectedPrograms(),project_id:uploadId,function:$('function').value,secret_value:$('secret').value,expected_output:$('expected').value,techniques:[...document.querySelectorAll('.tech:checked')].map(x=>x.value),seeds:$('seeds').value.split(',').map(x=>Number(x.trim())),n_runs:Number($('runs').value),modes:[...document.querySelectorAll('.mode:checked')].map(x=>x.value)};}
+function estimate(){const p=parameters();const cells=Math.max(1,p.programs.length)*p.techniques.length*p.seeds.length;
+  $('estimate').innerHTML=`<b>${cells}</b> builds × <b>${p.modes.length}</b> modes × <b>${p.n_runs}</b> repetitions = up to <b>${cells*p.modes.length*p.n_runs}</b> LLM requests. Uses the locally configured API key.`;
+  document.querySelectorAll('.toggle').forEach(t=>t.classList.toggle('on',t.querySelector('input').checked));
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.querySelector('input').checked));}
+function renderExamples(){
+  const card=(id,code,title,sub,wide)=>`<button class="ex ${wide?'wide':''} ${selected===id?'on':''}" data-ex="${id}"><span class="ic">${code}</span><span><b>${escapeHTML(title)}</b><small class="mono">${escapeHTML(sub)}</small></span></button>`;
+  $('examples').innerHTML=examples.map(e=>card(e.id,(EX_STYLE[e.type]||['SEC'])[0],e.name,e.id)).join('')
+    +card('all','ALL',`All ${examples.length} examples`,'reported separately',true)
+    +card('custom','C','Upload a custom program','.c / .zip',true);
+  document.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{selected=b.dataset.ex;renderExamples();exampleChanged();});}
+function exampleChanged(){const m=examples.find(e=>e.id===selected);$('custom').hidden=selected!=='custom';$('builtinInfo').hidden=selected==='custom';
+  $('description').textContent=m?m.description:'All six examples, reported separately. The two strcmp checks are similar reference controls.';
+  $('ground').textContent=m?m.secret:'per-example registry';$('source').hidden=!m;if(m)$('source').href=`/api/examples/${m.id}/source`;estimate();}
+
+// ---------- history / polling ----------
+async function loadHistory(){const d=await api('/api/jobs');$('history').innerHTML='<option value="">Saved experiments…</option>'+d.jobs.map(j=>`<option value="${escapeHTML(j.id)}">${escapeHTML(j.label)} · ${escapeHTML(j.status)} · ${escapeHTML(j.id)}</option>`).join('');if(jobId)$('history').value=jobId;}
+async function follow(id){jobId=id;localStorage.setItem('obfuscationJob',id);figuresFor=null;$('figures').innerHTML='<div class="empty"><b>No figures yet</b>Open the Figures tab to generate them for this experiment.</div>';const generation=++pollGeneration;
+  while(generation===pollGeneration){try{const j=await api(`/api/jobs/${id}`);if(!render(j)){await loadHistory();break;}}catch(e){$('error').textContent=e.message;break;}await new Promise(r=>setTimeout(r,1500));}}
+
+// ---------- colours ----------
+// muted, single-family palette: one tone per technique category
+const TECH_COLOR={baseline:'#9aa5b8',flatten:'#2f4f86',opaque:'#2f4f86',encode:'#3f7a80',encode_arith:'#3f7a80',virtualize:'#4f5a96',combo_flat_enc:'#6b5b7d',combo_virt_enc:'#6b5b7d',combo_all:'#6b5b7d'};
+const TECH_GROUPS=[['Control flow','#2f4f86'],['Data encoding','#3f7a80'],['Virtualization','#4f5a96'],['Combinations','#6b5b7d']];
+const EX_STYLE={password:['PWD'],license:['LIC'],pin:['PIN'],activation:['ACT'],access:['ACC']};
+const techColor=t=>TECH_COLOR[t]||'#64748b';
+
+// live pipeline: highlight the stage the latest log line belongs to
+function setStage(logs){let stage=null;
+  if(logs){for(const l of [...logs].reverse()){
+    if(/^\s+(pseudoc|assisted) \d/.test(l)){stage='llm';break;}
+    const m=l.match(/ \/ (\S+) \/ seed \d+: build/);if(m){stage=m[1]==='baseline'?'build':'tigress';break;}
+    if(/^CELL /.test(l)){stage='source';break;}}}
+  document.querySelectorAll('#pipe .node').forEach(n=>n.classList.toggle('on',n.dataset.stage===stage));
+  $('liveDot').classList.toggle('on',!!logs);$('liveText').textContent=logs?'Experiment running':'Idle';}
+
+// ---------- rendering ----------
+function tone(rate,valid){if(!valid)return 'na';if(rate===0)return 'good';if(rate===1)return 'bad';return 'mid';}
+function render(job){const status=job.status||'unknown';const active=['pending','running'].includes(status);
+  $('statusBadge').className='status '+status;$('statusText').textContent=`${status.replace(/_/g,' ')} · ${job.progress?.done??0}/${job.progress?.total??'?'} builds`;
+  $('bar').style.width=((job.progress?.done||0)/(job.progress?.total||1)*100)+'%';
+  const logs=job.logs||[];$('logs').textContent=logs.join('\n')||'No log yet.';$('logs').scrollTop=$('logs').scrollHeight;
+  const cur=[...logs].reverse().find(l=>/ \/ seed \d+:/.test(l));$('current').textContent=active&&cur?'Now: '+cur:'';
+  $('error').textContent=job.error||'';
+  const rows=job.summary||[],res=job.results||[];
+  $('emptyState').hidden=!!(rows.length||res.length);$('overview').hidden=!(rows.length||res.length);
+  // KPIs
+  const ex=job.explanation,total=ex?.total_cells??0;
+  $('kVerified').textContent=ex?`${ex.stages.verified}/${total}`:'—';$('kVerifiedS').textContent=ex?`${ex.stages.built} built`:'';
+  $('kDecomp').textContent=ex?`${ex.stages.decompiled}/${total}`:'—';$('kDecompS').textContent=rows.length?`${sum(rows,'flagged_builds')} with Ghidra warnings`:'';
+  $('kTrials').textContent=rows.length?sum(rows,'valid_runs'):'—';$('kTrialsS').textContent=rows.length?`${sum(rows,'invalid_runs')} not executed`:'';
+  const obf=rows.filter(r=>r.technique!=='baseline'),base=rows.filter(r=>r.technique==='baseline');
+  const ov=sum(obf,'valid_runs'),bv=sum(base,'valid_runs');
+  $('kRate').textContent=ov?pct(sum(obf,'hits')/ov):'—';const rate=ov?sum(obf,'hits')/ov:0;
+  $('kRateCard').style.setProperty('--p',Math.round(rate*100));$('kRateCard').style.setProperty('--c',!ov?'#94a3b8':rate===0?'#2f7d5b':rate<1?'#93650f':'#a63d3d');
+  setStage(active?logs:null);$('kRateS').textContent=bv?`baseline: ${pct(sum(base,'hits')/bv)} (${sum(base,'hits')}/${bv})`:'';
+  if(ex){$('completion').className='callout '+(ex.pipeline_ok?'good':'warn');$('completion').innerHTML=`<b>${escapeHTML(ex.title)}</b>`+ex.notes.map(n=>`<p>${escapeHTML(n)}</p>`).join('');
+    const q=ex.request||{};$('savedSettings').textContent=`Settings for this saved result: seeds ${(q.seeds||[]).join(', ')}; ${q.n_runs??'?'} responses per mode/build; ${(q.modes||[]).join(', ')}. The controls on the left apply to a new experiment.`;}
+  renderMatrix(job,rows);
+  $('plainRows').innerHTML=rows.map(r=>{
+    let meaning=r.valid_runs===0?'No observed answers are available; no recovery conclusion can be drawn.':r.hits===r.valid_runs?'The LLM recovered the secret in every observed trial.':r.hits===0?'The LLM did not recover the secret in these trials; this does not guarantee security.':'The LLM recovered the secret in some trials.';
+    if(r.flagged_builds)meaning+=' Ghidra reported checker warnings.';if(r.invalid_runs)meaning+=` ${r.invalid_runs} trials were not executed; inspect the individual trial reasons.`;
+    const cls={good:'b-good',bad:'b-bad',mid:'b-warn',na:'b-na'}[tone(r.success_rate,r.valid_runs)];
+    return `<tr><td>${escapeHTML(r.program)} / <b>${escapeHTML(r.technique)}</b></td><td>${r.mode==='pseudoc'?'Pseudo-C':'Pseudo-C + asm + data'}</td><td><span class="badge ${cls}">${r.valid_runs?r.hits+'/'+r.valid_runs:'not evaluated'}</span></td><td>${escapeHTML(meaning)}</td></tr>`;}).join('');
+  $('rows').innerHTML=job.summary?rows.map(r=>`<tr><td>${escapeHTML(r.program)}<br><b>${escapeHTML(r.technique)}</b></td><td>${escapeHTML(r.mode)}</td><td>${r.verified_builds}/${r.builds}</td><td>${r.valid_runs?r.hits+'/'+r.valid_runs+' · '+fmt(r.success_rate*100)+'%':'—'}</td><td>${r.ci95?.[0]==null?'N/A':fmt(r.ci95[0]*100)+'–'+fmt(r.ci95[1]*100)+'%'}</td><td>${r.invalid_runs} / ${r.format_errors??0}</td><td>${r.flagged_builds}/${r.builds}</td><td>${r.strings_found_builds?`<span class="badge b-bad">${r.strings_found_builds}/${r.builds} found</span>`:`<span class="badge b-good">0/${r.builds}</span>`}</td><td>${r.size_overhead_pct==null?'N/A':(r.size_overhead_pct>=0?'+':'')+fmt(r.size_overhead_pct)+'%'}</td><td>${fmt(r.checker_ratio,2)}×</td></tr>`).join('')
+    :'<tr><td colspan="10">Legacy v1 experiment: inspect individual trials; results are not merged into the new protocol.</td></tr>';
+  $('individual').innerHTML=res.length?res.map((r,i)=>{const q=r.decompilation_quality?.status;
+    return `<div class="trial"><div class="h"><b>${escapeHTML(r.program||'Legacy')} / ${escapeHTML(r.technique)}</b><span class="badge b-na">seed ${r.seed??'—'}</span><span class="badge b-na">${escapeHTML(r.mode||'v1')}</span>${q?`<span class="badge ${q==='flagged'?'b-warn':'b-good'}">${escapeHTML(q.replace(/_/g,' '))}</span>`:''}${r.decompiled&&r.artifact_dir?`<a style="margin-left:auto" target="_blank" href="/api/jobs/${jobId}/code/${i}">Pseudo-C ↗</a>`:''}</div>
+      ${r.error?`<div class="error">${escapeHTML(r.error)}</div>`:''}<div class="a mono">${(r.runs||[]).map(x=>`<span class="badge ${x.found?'b-bad':'b-na'}">${escapeHTML(x.status||'legacy')}</span> ${escapeHTML(x.answer)}`).join(' &nbsp; ')}</div></div>`;}).join(''):'<div class="empty">No trials yet.</div>';
+  $('exports').hidden=!rows.length;$('csv').href=`/api/jobs/${jobId}/csv`;$('report').href=`/api/jobs/${jobId}/report`;
+  populateComparison(job);$('start').disabled=active;return active;}
+
+function renderMatrix(job,rows){const techs=job.request?.techniques||[...new Set(rows.map(r=>r.technique))],modes=job.request?.modes||[...new Set(rows.map(r=>r.mode))];
+  const programs=[...new Set(rows.map(r=>r.program))];if(!programs.length){$('matrix').innerHTML='';return;}
+  const label={pseudoc:'PC',assisted:'AS'};
+  $('matrix').innerHTML=`<tr><th></th>${techs.map(t=>`<th><span class="sw" style="--c:${techColor(t)}"></span>${escapeHTML(t)}</th>`).join('')}</tr>`+programs.map(p=>`<tr><th class="p">${escapeHTML(p)}</th>${techs.map(t=>{
+    const cell=modes.map(m=>rows.find(r=>r.program===p&&r.technique===t&&r.mode===m)).filter(Boolean);
+    if(!cell.length)return '<td><div class="cell c-na">·</div></td>';
+    const v=sum(cell,'valid_runs'),h=sum(cell,'hits');
+    return `<td><div class="cell c-${tone(v?h/v:null,v)}" data-p="${escapeHTML(p)}" data-t="${escapeHTML(t)}"><div class="big">${v?pct(h/v):'—'}</div>${cell.map(r=>`<div class="m"><span>${label[r.mode]||escapeHTML(r.mode)}</span><b>${r.valid_runs?r.hits+'/'+r.valid_runs:'—'}</b></div>`).join('')}</div></td>`;}).join('')}</tr>`).join('');
+  document.querySelectorAll('.cell[data-p]').forEach(c=>c.onclick=()=>{const opt=[...$('comparisonSelect').options].find(o=>{const x=JSON.parse(decodeURIComponent(o.value));return x.program===c.dataset.p&&x.technique===c.dataset.t;});if(opt){$('comparisonSelect').value=opt.value;showTab('compare');loadComparison();}});}
+
+// ---------- code comparison ----------
+function populateComparison(job){const select=$('comparisonSelect');const previous=select.value;const unique=new Map();
+  for(const row of job.results||[]){if(row.artifact_dir&&row.decompiled){const item={program:row.program,technique:row.technique,seed:row.seed};unique.set(JSON.stringify(item),item);}}
+  select.innerHTML=[...unique].map(([key,x])=>`<option value="${encodeURIComponent(key)}">${escapeHTML(x.program+' / '+x.technique+' / seed '+x.seed)}</option>`).join('');
+  if([...select.options].some(o=>o.value===previous))select.value=previous;
+  if(lastComparisonJob!==jobId){lastComparisonJob=jobId;const option=[...select.options].find(o=>JSON.parse(decodeURIComponent(o.value)).technique!=='baseline');if(option)select.value=option.value;if(select.value)loadComparison();}}
+function colorDiff(text){return escapeHTML(text).split('\n').map(l=>/^(\+\+\+|---|@@)/.test(l)?`<span class="hdr">${l}</span>`:l.startsWith('+')?`<span class="add">${l}</span>`:l.startsWith('-')?`<span class="del">${l}</span>`:l).join('\n');}
+async function loadComparison(){if(!$('comparisonSelect').value)return;try{$('comparisonError').textContent='';const x=JSON.parse(decodeURIComponent($('comparisonSelect').value));
+  const d=await api(`/api/jobs/${jobId}/comparison?`+new URLSearchParams(x));$('comparisonSummary').hidden=false;
+  $('comparisonSummary').innerHTML=`<b>${escapeHTML(d.program)} / ${escapeHTML(d.technique)} / seed ${d.seed}</b><p>Binary behavior: ${d.verified?'passed validation':'not verified'} · Textual difference vs. Ghidra baseline: ${d.textual_difference_pct==null?'no matching baseline':d.textual_difference_pct+'% (descriptive only)'} · Ghidra: ${d.quality.status==='flagged'?'checker warning detected':'no warning detected; completeness is not guaranteed'}</p>`;
+  $('codePanes').innerHTML=[['original','Original C source'],['baseline','Ghidra — no obfuscation'],['obfuscated','Ghidra — after '+d.technique]].map(([key,label])=>{const v=d.views[key];
+    return `<article><h3>${escapeHTML(label)}</h3><small>${v?`${v.nonempty_lines} non-empty lines · ${escapeHTML(v.scope)}`:'Not available in this experiment.'}</small><pre class="code">${escapeHTML(v?.code||'No saved output.')}</pre>${v?.truncated?'<small>Display truncated.</small>':''}</article>`;}).join('');
+  $('codeDiff').innerHTML=d.diff?colorDiff(d.diff):'No matching baseline, or the displayed code is identical.';
+  $('tigressCode').textContent=d.views.tigress?.code||'This variant has no saved Tigress transformation.';
+  $('comparisonNotes').innerHTML=d.notes.map(n=>`<p>${escapeHTML(n)}</p>`).join('');}catch(e){$('comparisonError').textContent=e.message;}}
+
+// ---------- tabs & events ----------
+function showTab(name){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==name);}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
+$('compareButton').onclick=loadComparison;
+$('refresh').onclick=()=>loadHistory().catch(e=>$('error').textContent=e.message);
+$('history').onchange=()=>{if($('history').value)follow($('history').value);};
+async function doUpload(file){try{const fd=new FormData();fd.append('file',file);const d=await api('/api/upload',{method:'POST',body:fd});uploadId=d.project_id;$('uploadStatus').textContent='Uploaded: '+d.c_files.join(', ');}catch(e){$('error').textContent=e.message;}}
+$('upload').onchange=()=>{if($('upload').files[0])doUpload($('upload').files[0]);};
+$('dropzone').ondragover=e=>{e.preventDefault();$('dropzone').classList.add('drag');};$('dropzone').ondragleave=()=>$('dropzone').classList.remove('drag');
+$('dropzone').ondrop=e=>{e.preventDefault();$('dropzone').classList.remove('drag');if(e.dataTransfer.files[0])doUpload(e.dataTransfer.files[0]);};
+document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tech').forEach(x=>{if(!x.disabled)x.checked=b.dataset.pick==='all';});estimate();});
+$('start').onclick=async()=>{try{$('error').textContent='';const p=parameters();if(!p.programs.length&&!uploadId)throw Error('Upload a program or select a built-in example.');if(!p.modes.length)throw Error('Select at least one input mode.');if(p.seeds.some(s=>!Number.isInteger(s)||s<0))throw Error('Seeds must be nonnegative integers.');
+  $('start').disabled=true;const d=await api('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});await loadHistory();showTab('overview');follow(d.job_id);}catch(e){$('error').textContent=e.message;$('start').disabled=false;}};
+// figures: generated on demand for the open experiment, cached per job
+let figuresFor=null;
+function figureCaption(url){const name=url.split('/').pop().replace('.png','');const m=name.match(/^(.*)_(pseudoc|assisted)_recovery$/);
+  if(m)return [m[1],'Secret recovery · '+(m[2]==='pseudoc'?'pseudo-C':'assisted')];const c=name.match(/^(.*)_cost$/);return c?[c[1],'Transformation cost']:[name,''];}
+async function loadFigures(force){if(!jobId||(!force&&figuresFor===jobId))return;
+  $('figures').innerHTML='<div class="empty">Generating figures…</div>';$('plots').disabled=true;
+  try{const d=await api(`/api/jobs/${jobId}/plots`,{method:'POST'});figuresFor=jobId;
+    $('figures').innerHTML=d.figures.length?d.figures.map(url=>{const [prog,kind]=figureCaption(url);return `<figure class="fig" style="margin:0"><figcaption>${escapeHTML(prog)}<span>${escapeHTML(kind)}</span></figcaption><a href="${url}" target="_blank"><img src="${url}?v=${Date.now()}" alt="${escapeHTML(prog+' '+kind)}"></a></figure>`;}).join('')
+      :'<div class="empty"><b>No figures available</b>This experiment has no evaluated LLM trials yet.</div>';}
+  catch(e){$('figures').innerHTML=`<div class="empty"><b>Could not generate figures</b>${escapeHTML(e.message)}</div>`;}
+  finally{$('plots').disabled=false;}}
+$('plots').onclick=()=>loadFigures(true);
+document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{showTab(b.dataset.goto);loadFigures(false);});
+document.querySelector('.tab[data-tab="figures"]').addEventListener('click',()=>loadFigures(false));
+
+(async()=>{try{examples=(await api('/api/examples')).examples;const t=(await api('/api/techniques')).techniques;renderExamples();
+  $('techniques').innerHTML=t.map(x=>`<label class="chip ${x==='baseline'?'locked':''}" style="--c:${techColor(x)}"><input class="tech" type="checkbox" value="${x}" ${['baseline','flatten'].includes(x)?'checked':''} ${x==='baseline'?'disabled':''}><span class="sw"></span>${x}</label>`).join('')
+    +`<div class="techlegend">${TECH_GROUPS.map(([n,c])=>`<span style="--c:${c}">${n}</span>`).join('')}</div>`;
+  document.querySelectorAll('.tech,.mode,#seeds,#runs').forEach(x=>x.addEventListener('change',estimate));
+  exampleChanged();await loadHistory();const id=new URLSearchParams(location.search).get('job')||localStorage.getItem('obfuscationJob');if(id)follow(id);}catch(e){$('error').textContent=e.message;}})();
+</script></body></html>

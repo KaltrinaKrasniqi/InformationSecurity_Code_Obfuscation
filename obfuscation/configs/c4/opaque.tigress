@@ -1,0 +1,10 @@
+# Tigress transformation recipe: opaque
+--Transform=InitEntropy
+--Functions=main
+--InitEntropyKinds=vars
+--Transform=InitOpaque
+--Functions=main
+--InitOpaqueInvariantKinds=structure_state,environment
+--Transform=AddOpaque
+--Functions=FUNC
+--AddOpaqueKinds=true

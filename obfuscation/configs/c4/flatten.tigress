@@ -1,0 +1,3 @@
+# Tigress transformation recipe: flatten
+--Transform=Flatten
+--Functions=FUNC
