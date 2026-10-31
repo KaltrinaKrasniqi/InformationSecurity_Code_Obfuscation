@@ -1,0 +1,53 @@
+{
+  "p1_password": {
+    "func": "check_password",
+    "src": "password.c",
+    "name": "Literal password",
+    "description": "Direct string comparison; the simplest reference case.",
+    "secret": "K0sova_2026!",
+    "type": "password"
+  },
+  "p2_license": {
+    "func": "check_license",
+    "src": "license.c",
+    "name": "Literal license key",
+    "description": "Direct license-key comparison; a second strcmp reference control.",
+    "secret": "XJ9A-2K47-LMN8",
+    "type": "license"
+  },
+  "p3_pin": {
+    "func": "check_pin",
+    "src": "pin.c",
+    "name": "Numeric PIN",
+    "description": "Strict numeric parsing and comparison; strings is not a complete test for numeric secrets.",
+    "secret": "4829",
+    "type": "pin"
+  },
+  "p4_activation": {
+    "func": "check_activation",
+    "src": "activation.c",
+    "name": "Activation code",
+    "description": "Directly checks the ACT- prefix, year 2026, and READY suffix; no encoding or secret reconstruction.",
+    "secret": "ACT-2026-READY",
+    "type": "activation",
+    "corpus_version": "plain-baseline-v3"
+  },
+  "p5_access": {
+    "func": "check_access",
+    "src": "access.c",
+    "name": "Staff access code",
+    "description": "Checks the STAFF:code format and literal ENTRY-42 code; no XOR or pre-applied hiding.",
+    "secret": "STAFF:ENTRY-42",
+    "type": "access",
+    "corpus_version": "plain-baseline-v3"
+  },
+  "p6_staged": {
+    "func": "check_staged",
+    "src": "staged.c",
+    "name": "Segmented license",
+    "description": "Directly checks LAB-, 3749, and -KQ segments; no equations used to hide the answer.",
+    "secret": "LAB-3749-KQ",
+    "type": "license",
+    "corpus_version": "plain-baseline-v3"
+  }
+}

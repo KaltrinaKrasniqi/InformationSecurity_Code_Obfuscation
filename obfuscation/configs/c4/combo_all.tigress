@@ -1,0 +1,11 @@
+# Tigress transformation recipe: combo_all
+--Transform=InitEntropy
+--Functions=main
+--InitEntropyKinds=vars
+--Transform=InitOpaque
+--Functions=main
+--InitOpaqueInvariantKinds=structure_state,environment
+--Transform=EncodeLiterals
+--Functions=FUNC
+# NEEDS_VIRTUALIZE_PASS2
+# WITH_FLATTEN

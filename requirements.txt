@@ -1,0 +1,13 @@
+# LLM
+openai>=1.0.0
+
+# UI
+flask>=3.0.0
+
+# Analysis & plots
+pandas>=2.0.0
+matplotlib>=3.8.0
+lizard>=1.17.0
+
+# General utilities
+python-dotenv
