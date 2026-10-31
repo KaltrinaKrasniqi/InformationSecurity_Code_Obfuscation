@@ -12,7 +12,8 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .brand b{display:block;font-size:15px}.brand small{color:var(--muted);font-size:12px}
 .flow{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .flow span{padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}.flow i{font-style:normal;opacity:.5}
-.wrap{max-width:1440px;margin:auto;padding:24px;display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.wrap{max-width:1440px;margin:auto;padding:24px;display:grid;grid-template-columns:380px minmax(0,1fr);gap:24px;align-items:start}
+main{min-width:0}
 @media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:16px}.flow{display:none}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
 .card>header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
@@ -49,7 +50,7 @@ input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--a
 .estimate{font-size:12px;color:var(--muted);background:var(--panel2);border-radius:8px;padding:8px 10px;margin:12px 0}
 .error{color:var(--bad);font-size:13px;white-space:pre-wrap;margin:8px 0 0}
 .mainhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.mainhead h1{margin:0;font-size:20px}.mainhead select{width:auto;min-width:280px;max-width:100%;margin-left:auto}
+.mainhead h1{margin:0;font-size:20px}.mainhead select{width:auto;min-width:0;max-width:420px;flex:1 1 280px;margin-left:auto}
 .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--nabg);color:var(--muted)}
 .status.running,.status.pending{background:var(--accent2);color:var(--accent)}.status.done{background:var(--goodbg);color:var(--good)}
 .status.error,.status.interrupted,.status.done_with_errors{background:var(--warnbg);color:var(--warn)}
@@ -151,7 +152,7 @@ input[type=text],input[type=number],input:not([type]),select{border-radius:6px}
 
 <div class="top"><div class="in">
   <div class="logo">OL</div>
-  <div class="brand" style="margin-right:auto"><b>Obfuscation Lab</b><small>Information Security</small></div>
+  <div class="brand" style="margin-right:auto"><b>Obfuscation Lab</b><small>Information Security · University of Prishtina</small></div>
   <div class="flow"><span class="live" id="liveDot"></span><span id="liveText">Idle</span></div>
 </div></div>
 
@@ -430,5 +431,7 @@ document.querySelector('.tab[data-tab="figures"]').addEventListener('click',()=>
   $('techniques').innerHTML=t.map(x=>`<label class="chip ${x==='baseline'?'locked':''}" style="--c:${techColor(x)}"><input class="tech" type="checkbox" value="${x}" ${['baseline','flatten'].includes(x)?'checked':''} ${x==='baseline'?'disabled':''}><span class="sw"></span>${x}</label>`).join('')
     +`<div class="techlegend">${TECH_GROUPS.map(([n,c])=>`<span style="--c:${c}">${n}</span>`).join('')}</div>`;
   document.querySelectorAll('.tech,.mode,#seeds,#runs').forEach(x=>x.addEventListener('change',estimate));
-  exampleChanged();await loadHistory();const id=new URLSearchParams(location.search).get('job')||localStorage.getItem('obfuscationJob');if(id)follow(id);}catch(e){$('error').textContent=e.message;}})();
+  exampleChanged();await loadHistory();const id=new URLSearchParams(location.search).get('job')||localStorage.getItem('obfuscationJob');if(id)follow(id);
+  // deep link to a tab, e.g. ?job=<id>#figures
+  const tab=location.hash.slice(1);if(document.querySelector(`.tab[data-tab="${tab}"]`)){showTab(tab);if(tab==='figures')loadFigures(false);}}catch(e){$('error').textContent=e.message;}})();
 </script></body></html>

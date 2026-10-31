@@ -28,7 +28,8 @@ def explain(job):
 
 def function_view(code,names):
     functions=lizard.analyze_file.analyze_source_code("comparison.c",code).function_list
-    wanted=[f for f in functions if f.name in names]
+    from quality import symbol
+    wanted=[f for f in functions if symbol(f.name) in names]
     if not wanted:return {"code":code[:70000],"scope":"The function was not identified; available output is shown", "truncated":len(code)>70000}
     lines=code.splitlines();parts=[]
     for f in wanted:

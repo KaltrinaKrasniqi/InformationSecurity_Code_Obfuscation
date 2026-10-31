@@ -11,6 +11,12 @@ class PresentationTests(unittest.TestCase):
     def test_checker_view_excludes_main(self):
         view=function_view("int check_x(const char *x){return 1;}\nint main(){return 0;}",["check_x"])
         self.assertIn("check_x",view["code"]);self.assertNotIn("main",view["code"])
+    def test_macho_underscore_symbols_are_recognised(self):
+        from quality import assess
+        code="/* FUNCTION: _check_x */\nbool _check_x(char *p)\n{\n  return 1;\n}\n/* FUNCTION: entry */\nint entry(void){return 0;}"
+        self.assertEqual(assess(code,"check_x")["status"],"no_warning_detected")
+        view=function_view(code,["check_x"])
+        self.assertIn("_check_x",view["code"]);self.assertNotIn("entry",view["code"])
     def test_interrupted_job_not_marked_success(self):
         result=explain({"status":"interrupted","progress":{"done":0,"total":2},"results":[]})
         self.assertFalse(result["pipeline_ok"])
