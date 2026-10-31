@@ -1,0 +1,6 @@
+# Tigress transformation recipe: encode_arith
+--Transform=InitEntropy
+--Functions=main
+--InitEntropyKinds=vars
+--Transform=EncodeArithmetic
+--Functions=FUNC
